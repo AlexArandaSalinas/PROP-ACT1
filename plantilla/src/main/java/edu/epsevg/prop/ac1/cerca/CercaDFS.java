@@ -5,33 +5,27 @@ import edu.epsevg.prop.ac1.resultat.ResultatCerca;
 import java.util.*;
 
 public class CercaDFS extends Cerca {
+    private static final int MAX_PROFUNDITAT = 50;
 
-    public CercaDFS(boolean usarLNT) { 
-        super(usarLNT); 
-    }
+    public CercaDFS(boolean usarLNT) { super(usarLNT); }
 
     @Override
     public void ferCerca(Mapa inicial, ResultatCerca rc) {
-        // Frontier: pila LIFO per DFS
-        Deque<Mapa> frontier = new ArrayDeque<>();
-        
-        // Mapes per reconstruir el camí
+        // Stack per DFS
+        Deque<Map.Entry<Mapa, Integer>> stack = new ArrayDeque<>();
         Map<Mapa, Mapa> parents = new HashMap<>();
         Map<Mapa, Moviment> accions = new HashMap<>();
-        
-        // Llista tancada (per evitar repetir estats)
         Set<Mapa> visitats = usarLNT ? new HashSet<>() : null;
 
-        // Afegir estat inicial
-        frontier.push(inicial);
+        stack.push(new AbstractMap.SimpleEntry<>(inicial, 0));
         if (usarLNT) visitats.add(inicial);
 
-        // Bucle principal DFS
-        while (!frontier.isEmpty()) {
-            Mapa actual = frontier.pop();  // Treure el darrer estat
+        while (!stack.isEmpty()) {
+            Map.Entry<Mapa, Integer> entry = stack.pop();
+            Mapa actual = entry.getKey();
+            int profunditat = entry.getValue();
             rc.incNodesExplorats();
 
-            // Si hem arribat a la meta
             if (actual.esMeta()) {
                 // Reconstruir camí
                 List<Moviment> cami = new ArrayList<>();
@@ -44,26 +38,27 @@ public class CercaDFS extends Cerca {
                 return;
             }
 
+            // Limitar profunditat
+            if (!usarLNT && profunditat >= MAX_PROFUNDITAT) {
+                rc.incNodesTallats();
+                continue;
+            }
+
             // Generar successors
             for (Map.Entry<Mapa, Moviment> succ : successors(actual)) {
                 Mapa nou = succ.getKey();
                 Moviment mov = succ.getValue();
 
-                // Evitar repetir estats si fem servir llista tancada
                 if (usarLNT && visitats.contains(nou)) {
                     rc.incNodesTallats();
                     continue;
                 }
 
-                // Afegir a frontier i marcar com visitat
-                frontier.push(nou);
+                stack.push(new AbstractMap.SimpleEntry<>(nou, profunditat + 1));
                 if (usarLNT) visitats.add(nou);
-
-                // Guardar pare i moviment
                 parents.put(nou, actual);
                 accions.put(nou, mov);
-
-                rc.updateMemoria(frontier.size() + (usarLNT ? visitats.size() : 0));
+                rc.updateMemoria(stack.size() + (usarLNT ? visitats.size() : 0));
             }
         }
 
