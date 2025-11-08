@@ -33,4 +33,23 @@ public abstract class Cerca {
 
         return res;
     }
+    
+    protected int getProfunditat(Mapa est, Map<Mapa, Mapa> parents) {
+        int prof = 0;
+        Mapa p = parents.get(est);
+        while (p != null) {
+            prof++;
+            p = parents.get(p);
+        }
+        return prof;
+    }
+
+    protected boolean existeixEnBranca(Mapa nou, Mapa actual, Map<Mapa, Mapa> parents) {
+    Mapa p = actual;
+    while (parents.containsKey(p)) {
+        if (p.equals(nou)) return true;
+        p = parents.get(p);
+    }
+    return false;
+}
 }

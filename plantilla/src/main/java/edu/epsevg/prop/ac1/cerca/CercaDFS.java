@@ -49,6 +49,13 @@ public class CercaDFS extends Cerca {
                 Mapa nou = succ.getKey();
                 Moviment mov = succ.getValue();
 
+                // Control de ciclos si no usamos LNT
+                if (!usarLNT && existeixEnBranca(nou, actual, parents)) {
+                    rc.incNodesTallats();
+                    continue;
+                }
+
+                // Control de ciclos con LNT
                 if (usarLNT && visitats.contains(nou)) {
                     rc.incNodesTallats();
                     continue;
@@ -60,6 +67,7 @@ public class CercaDFS extends Cerca {
                 accions.put(nou, mov);
                 rc.updateMemoria(stack.size() + (usarLNT ? visitats.size() : 0));
             }
+
         }
 
         // Si no trobem meta
