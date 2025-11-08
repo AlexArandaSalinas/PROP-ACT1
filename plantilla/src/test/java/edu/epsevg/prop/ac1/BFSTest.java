@@ -14,7 +14,7 @@ public class BFSTest {
     public void testBFSMapA() throws Exception {
        
         Mapa m = new Mapa(Path.of("src/main/resources/mapA.map"));
-        CercaBFS bfs = new CercaBFS(false);
+        CercaBFS bfs = new CercaBFS(true);
         ResultatCerca r = new ResultatCerca();
         bfs.ferCerca(m, r);
         assertNotNull(r.getCami());
