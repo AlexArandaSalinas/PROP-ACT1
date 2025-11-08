@@ -217,9 +217,47 @@ public class Mapa {
      */
     public List<Moviment> getAccionsPossibles() {
         List<Moviment> res = new ArrayList<>();
-        // ===============================================
-        //@TODO: A IMPLEMENTAR !!!!!!
-        // ===============================================
+
+        // Direccions disponibles (4 moviments possibles)
+        Direccio[] dirs = Direccio.values();  // Suposem que tens un enum Direccio {AMUNT, AVALL, ESQUERRA, DRETA}
+
+        // Per cada agent
+        for (int aid = 1; aid <= agents.size(); aid++) {
+            Posicio pos = agents.get(aid - 1);
+
+            // Comprovar les quatre direccions
+            for (Direccio d : dirs) {
+                Posicio dest = pos.translate(d);
+                int cell = getCell(dest);
+
+                // Si és paret, no es pot
+                if (cell == PARET) continue;
+
+                // Si és una porta, comprovar si és obrible
+                if (Character.isUpperCase(cell) && !portaObrible((char) cell))
+                    continue;
+
+                // Evitar col·lisions amb altres agents
+                boolean colisio = false;
+                for (int j = 0; j < agents.size(); j++) {
+                    if (j == aid - 1) continue;
+                    if (agents.get(j).equals(dest)) {
+                        colisio = true;
+                        break;
+                    }
+                }
+                if (colisio) continue;
+
+                // Determinar si hi ha una clau no recollida
+                boolean recullClau = false;
+                if (Character.isLowerCase(cell) && !teClau((char) cell))
+                    recullClau = true;
+
+                // Afegir el moviment vàlid
+                res.add(new Moviment(aid, d, recullClau));
+            }
+        }
+
         return res;
     }
 
