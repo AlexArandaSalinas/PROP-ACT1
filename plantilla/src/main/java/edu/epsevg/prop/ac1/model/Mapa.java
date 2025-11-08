@@ -272,23 +272,40 @@ public class Mapa {
 
     @Override
     public boolean equals(Object o) {
-        
-        // ===============================================
-        //@TODO: A IMPLEMENTAR !!!!!!
-        // ===============================================
-        
+        if (this == o) return true;
+        if (!(o instanceof Mapa)) return false;
+        Mapa other = (Mapa) o;
+
+        // comprovem dimensions i sortida (seguretat)
+        if (this.n != other.n || this.m != other.m) return false;
+        if (this.sortida == null) {
+            if (other.sortida != null) return false;
+        } else {
+            if (!this.sortida.equals(other.sortida)) return false;
+        }
+
+        // comprovem màscara de claus
+        if (this.clausMask != other.clausMask) return false;
+
+        // comprovem nombre d'agents
+        if (this.agents.size() != other.agents.size()) return false;
+
+        // comprovem posició de cada agent (ordre important: agent 1 amb agent 1, etc.)
+        for (int i = 0; i < agents.size(); i++) {
+            Posicio p1 = this.agents.get(i);
+            Posicio p2 = other.agents.get(i);
+            if (!p1.equals(p2)) return false;
+        }
+
         return true;
     }
 
     @Override
     public int hashCode() {
-        // ===============================================
-        //@TODO: A IMPLEMENTAR !!!!!!
-        // ===============================================
-        
-        return 0;
+        // Incloem dimensions, sortida, agents i clausMask
+        return Objects.hash(n, m, sortida, agents, clausMask);
     }
-
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
