@@ -6,74 +6,87 @@ import java.util.*;
 
 public class CercaBFS extends Cerca {
 
-    public CercaBFS(boolean usarLNT) { 
-        super(usarLNT); 
+    public CercaBFS(boolean usarLNT) {
+        super(usarLNT);
     }
 
-    //LNO = frontier
-    //LNT = visitats
     @Override
     public void ferCerca(Mapa inicial, ResultatCerca rc) {
-        
-        // Llista de nodes oberts (LNO) . frontier
-        Queue<Mapa> frontier = new ArrayDeque<>();
-        
-        Map<Mapa, Mapa> parents = new HashMap<>();
-        Map<Mapa, Moviment> accions = new HashMap<>();
-        
-        // LNT: map de visitats amb profunditat
-        Map<Mapa, Integer> visitatsLNT = usarLNT ? new HashMap<>() : null;
 
-        frontier.add(inicial);
-        if (usarLNT) visitatsLNT.put(inicial, 0);
+        //LNO - Frontier
+        Queue<Node> lno = new ArrayDeque<>();
+        Map<Mapa, Integer> lnt = usarLNT ? new HashMap<>() : null; 
+        
+        // Nodo inicial
+        Node inicialNode = new Node(inicial, null, null, 0, 0);
+        lno.add(inicialNode);
+        if (usarLNT){
+            lnt.put(inicial, 0);
+        }
 
-        while (!frontier.isEmpty()) {
-            Mapa actual = frontier.poll();
+        rc.updateMemoria(1);
+
+        // Bucle principal
+        while (!lno.isEmpty()) {
+            
+            //Extraer sig Node
+            Node actual = lno.poll();
             rc.incNodesExplorats();
 
-            if (actual.esMeta()) {
+            // Si és meta, reconstruir camí
+            if (actual.estat.esMeta()) {
                 List<Moviment> cami = new ArrayList<>();
-                Mapa est = actual;
-                while (parents.containsKey(est)) {
-                    cami.add(0, accions.get(est));
-                    est = parents.get(est);
+                Node n = actual;
+                while (n.pare != null) {
+                    cami.add(0, n.accio);
+                    n = n.pare;
                 }
                 rc.setCami(cami);
                 return;
             }
 
-            for (Map.Entry<Mapa, Moviment> succ : successors(actual)) {
-                Mapa nou = succ.getKey();
+            // Expansió de successors
+            for (Map.Entry<Mapa, Moviment> succ : successors(actual.estat)) {
+                Mapa nouEstat = succ.getKey();
                 Moviment mov = succ.getValue();
 
                 boolean descartar = false;
 
                 if (usarLNT) {
-                    int profunditatActual = parents.containsKey(actual) ? 1 + getProfunditat(actual, parents) : 0;
-                    if (visitatsLNT.containsKey(nou) && visitatsLNT.get(nou) <= profunditatActual) {
-                        descartar = true;
-                    } else {
-                        visitatsLNT.put(nou, profunditatActual);
+                    // Evitem estats ja visitats amb menor profunditat
+                    if (lnt.containsKey(nouEstat)) {
+                        rc.incNodesTallats();
+                        continue;
                     }
+                    lnt.put(nouEstat, actual.depth + 1);
                 } else {
                     // Control de cicles a la branca actual
-                    if (existeixEnBranca(nou, actual, parents)) {
-                        descartar = true;
+                    if (existeixEnBranca(nouEstat, actual)) {
+                        rc.incNodesTallats();
+                        continue;
                     }
                 }
 
-                if (descartar) {
-                    rc.incNodesTallats();
-                    continue;
-                }
+                Node nouNode = new Node(nouEstat, actual, mov, actual.depth + 1, 0);
+                lno.add(nouNode);
 
-                frontier.add(nou);
-                parents.put(nou, actual);
-                accions.put(nou, mov);
-                rc.updateMemoria(frontier.size() + (usarLNT ? visitatsLNT.size() : 0));
+                rc.updateMemoria(lno.size() + (usarLNT ? lnt.size() : 0));
             }
         }
 
+        // Si no hi ha solució
         rc.setCami(null);
+    }
+
+    /**
+     * Control de cicles per la branca actual (quan no es fa servir LNT).
+     */
+    private boolean existeixEnBranca(Mapa estat, Node node) {
+        Node actual = node;
+        while (actual != null) {
+            if (actual.estat.equals(estat)) return true;
+            actual = actual.pare;
+        }
+        return false;
     }
 }
