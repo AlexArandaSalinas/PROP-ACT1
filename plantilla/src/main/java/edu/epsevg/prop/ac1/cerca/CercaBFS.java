@@ -10,6 +10,8 @@ public class CercaBFS extends Cerca {
         super(usarLNT); 
     }
 
+    //LNO = frontier
+    //LNT = visitats
     @Override
     public void ferCerca(Mapa inicial, ResultatCerca rc) {
         Queue<Mapa> frontier = new ArrayDeque<>();
