@@ -13,60 +13,68 @@ public class CercaIDS extends Cerca {
 
     @Override
     public void ferCerca(Mapa inicial, ResultatCerca rc) {
-        
-        for (int limit = 0; limit <= MAX_PROFUNDITAT; limit++) {
-            
-            // Cada iteració reinicia la cerca amb un límit major
-            Set<Mapa> visitats = usarLNT ? new HashSet<>() : null;
-            Map<Mapa, Mapa> parents = new HashMap<>();
-            Map<Mapa, Moviment> accions = new HashMap<>();
 
-            Mapa resultat = dfsLimitat(inicial, limit, visitats, parents, accions, rc);
+        for (int limit = 0; limit <= MAX_PROFUNDITAT; limit++) {
+
+            // Reiniciar estructuras para cada iteración
+            Set<Mapa> visitats = usarLNT ? new HashSet<>() : null;
+
+            Node resultat = dfsLimitat(
+                    new Node(inicial, null, null, 0, 0),
+                    limit,
+                    visitats,
+                    rc
+            );
 
             if (resultat != null) {
-                // Reconstruir camí des de la meta fins a l'inicial
+                // Reconstruir camí
                 List<Moviment> cami = new ArrayList<>();
-                Mapa est = resultat;
-                while (parents.containsKey(est)) {
-                    cami.add(0, accions.get(est));
-                    est = parents.get(est);
+                Node n = resultat;
+                while (n.pare != null) {
+                    cami.add(0, n.accio);
+                    n = n.pare;
                 }
                 rc.setCami(cami);
                 return;
             }
         }
-        // No s'ha trobat cap solució
+
+        // No trobem cap solució
         rc.setCami(null);
     }
 
-    private Mapa dfsLimitat(Mapa actual, int limit, Set<Mapa> visitats,
-                            Map<Mapa, Mapa> parents, Map<Mapa, Moviment> accions, ResultatCerca rc) {
+    /**
+     * Cerca DFS amb límit de profunditat
+     */
+    private Node dfsLimitat(Node inicialNode, int limit, Set<Mapa> visitats, ResultatCerca rc) {
 
-        Deque<Map.Entry<Mapa, Integer>> stack = new ArrayDeque<>();
-        stack.push(new AbstractMap.SimpleEntry<>(actual, 0));
-        if (usarLNT && visitats != null) visitats.add(actual);
+        Deque<Node> pila = new ArrayDeque<>();
+        pila.push(inicialNode);
+        if (usarLNT && visitats != null) visitats.add(inicialNode.estat);
 
-        while (!stack.isEmpty()) {
-            Map.Entry<Mapa, Integer> entry = stack.pop();
-            Mapa mapaActual = entry.getKey();
-            int profunditat = entry.getValue();
+        while (!pila.isEmpty()) {
+            Node actualNode = pila.pop();
+            Mapa actual = actualNode.estat;
             rc.incNodesExplorats();
 
-            if (mapaActual.esMeta()) {
-                return mapaActual;
+            // Si trobem meta
+            if (actual.esMeta()) {
+                return actualNode;
             }
 
-            if (profunditat >= limit) {
+            // Tall per profunditat
+            if (actualNode.depth >= limit) {
                 rc.incNodesTallats();
                 continue;
             }
 
-            for (Map.Entry<Mapa, Moviment> succ : successors(mapaActual)) {
+            // Generar successors
+            for (Map.Entry<Mapa, Moviment> succ : successors(actual)) {
                 Mapa nou = succ.getKey();
                 Moviment mov = succ.getValue();
 
-                // Control de cicles segons el mode
-                if (!usarLNT && existeixEnBranca(nou, mapaActual, parents)) {
+                // Control de cicles segons mode
+                if (!usarLNT && existeixEnBranca(nou, actualNode)) {
                     rc.incNodesTallats();
                     continue;
                 }
@@ -75,14 +83,13 @@ public class CercaIDS extends Cerca {
                     continue;
                 }
 
-                stack.push(new AbstractMap.SimpleEntry<>(nou, profunditat + 1));
+                Node nouNode = new Node(nou, actualNode, mov, actualNode.depth + 1, actualNode.g + 1);
+                pila.push(nouNode);
                 if (usarLNT && visitats != null) visitats.add(nou);
-                parents.put(nou, mapaActual);
-                accions.put(nou, mov);
-                rc.updateMemoria(stack.size() + (usarLNT && visitats != null ? visitats.size() : 0));
+                rc.updateMemoria(pila.size() + (usarLNT && visitats != null ? visitats.size() : 0));
             }
         }
 
-        return null;
+        return null; // No hi ha solució dins d’aquest límit
     }
 }
