@@ -219,11 +219,11 @@ public class Mapa {
         List<Moviment> res = new ArrayList<>();
 
         // Direccions disponibles (4 moviments possibles)
-        Direccio[] dirs = Direccio.values();  // Suposem que tens un enum Direccio {AMUNT, AVALL, ESQUERRA, DRETA}
+        Direccio[] dirs = Direccio.values();
 
         // Per cada agent
-        for (int aid = 1; aid <= agents.size(); aid++) {
-            Posicio pos = agents.get(aid - 1);
+        for (int i = 1; i <= agents.size(); i++) {
+            Posicio pos = agents.get(i - 1);
 
             // Comprovar les quatre direccions
             for (Direccio d : dirs) {
@@ -240,7 +240,7 @@ public class Mapa {
                 // Evitar col·lisions amb altres agents
                 boolean colisio = false;
                 for (int j = 0; j < agents.size(); j++) {
-                    if (j == aid - 1) continue;
+                    if (j == i - 1) continue;
                     if (agents.get(j).equals(dest)) {
                         colisio = true;
                         break;
@@ -254,7 +254,7 @@ public class Mapa {
                     recullClau = true;
 
                 // Afegir el moviment vàlid
-                res.add(new Moviment(aid, d, recullClau));
+                res.add(new Moviment(i, d, recullClau));
             }
         }
 
