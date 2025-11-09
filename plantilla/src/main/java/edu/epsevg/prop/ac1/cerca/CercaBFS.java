@@ -14,9 +14,13 @@ public class CercaBFS extends Cerca {
     //LNT = visitats
     @Override
     public void ferCerca(Mapa inicial, ResultatCerca rc) {
+        
+        // Llista de nodes oberts (LNO) . frontier
         Queue<Mapa> frontier = new ArrayDeque<>();
+        
         Map<Mapa, Mapa> parents = new HashMap<>();
         Map<Mapa, Moviment> accions = new HashMap<>();
+        
         // LNT: map de visitats amb profunditat
         Map<Mapa, Integer> visitatsLNT = usarLNT ? new HashMap<>() : null;
 

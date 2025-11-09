@@ -16,87 +16,71 @@ public class CercaAStar extends Cerca {
         this.heur = heur; 
     }
 
-    private static class Node {
-        Mapa mapa;
-        double g; // cost acumulat
-        double h; // heurística
-        double f; // g + h
 
-        Node(Mapa mapa, double g, double h) {
-            this.mapa = mapa;
-            this.g = g;
-            this.h = h;
-            this.f = g + h;
-        }
-    }
-
-    @Override
+   @Override
     public void ferCerca(Mapa inicial, ResultatCerca rc) {
-        // Comparator per ordenar per f(n)
-        Comparator<Node> comparator = Comparator.comparingDouble(n -> n.f);
+        
+        // Comparator per ordenar per f(n) = g + h
+        Comparator<Node> comparator = Comparator.comparingDouble(n -> n.g + heur.h(n.estat));
         PriorityQueue<Node> oberts = new PriorityQueue<>(comparator);
 
-        Map<Mapa, Mapa> parents = new HashMap<>();
-        Map<Mapa, Moviment> accions = new HashMap<>();
-        Map<Mapa, Double> gScore = new HashMap<>();
+        // Taules auxiliars
+        Map<Mapa, Integer> gScore = new HashMap<>();
+        Set<Mapa> tancats = usarLNT ? new HashSet<>() : null;
 
-        // Llista de nodes tancats (LNT)
-        Map<Mapa, Double> tancats = usarLNT ? new HashMap<>() : null;
-
-        Node inicialNode = new Node(inicial, 0, heur.h(inicial));
+        // Node inicial
+        Node inicialNode = new Node(inicial, null, null, 0, 0);
         oberts.add(inicialNode);
-        gScore.put(inicial, 0.0);
+        gScore.put(inicial, 0);
+
+        rc.updateMemoria(1);
 
         while (!oberts.isEmpty()) {
-            Node actualNode = oberts.poll();
-            Mapa actual = actualNode.mapa;
+            Node actual = oberts.poll();
             rc.incNodesExplorats();
 
-            // Si és meta → reconstruir camí
-            if (actual.esMeta()) {
+            // Si és la meta -> reconstruir camí
+            if (actual.estat.esMeta()) {
                 List<Moviment> cami = new ArrayList<>();
-                Mapa est = actual;
-                while (parents.containsKey(est)) {
-                    cami.add(0, accions.get(est));
-                    est = parents.get(est);
+                Node n = actual;
+                while (n.pare != null) {
+                    cami.add(0, n.accio);
+                    n = n.pare;
                 }
                 rc.setCami(cami);
                 return;
             }
 
             // Marcar com tancat
-            if (usarLNT) tancats.put(actual, actualNode.g);
+            if (usarLNT) tancats.add(actual.estat);
 
             // Generar successors
-            for (Map.Entry<Mapa, Moviment> succ : successors(actual)) {
-                Mapa nou = succ.getKey();
-                Moviment mov = succ.getValue();
-                double nouG = actualNode.g + 1; // cost d'un moviment
+            for (Map.Entry<Mapa, Moviment> succ : successors(actual.estat)) {
+                Mapa nouEstat = succ.getKey();
+                Moviment accio = succ.getValue();
+                int nouG = actual.g + 1; // cost uniforme
 
-                // Si està tancat amb cost menor → tallar
-                if (usarLNT && tancats.containsKey(nou) && tancats.get(nou) <= nouG) {
+                // Si ja està tancat → tallar
+                if (usarLNT && tancats.contains(nouEstat)) {
                     rc.incNodesTallats();
                     continue;
                 }
 
-                // Si ja el tenim amb millor cost → ignorar
-                if (gScore.containsKey(nou) && gScore.get(nou) <= nouG) {
+                // Si ja tenim un cost millor → ignorar
+                if (gScore.containsKey(nouEstat) && gScore.get(nouEstat) <= nouG) {
                     rc.incNodesTallats();
                     continue;
                 }
 
-                gScore.put(nou, nouG);
-                double nouH = heur.h(nou);
-                Node nouNode = new Node(nou, nouG, nouH);
-
+                gScore.put(nouEstat, nouG);
+                Node nouNode = new Node(nouEstat, actual, accio, actual.depth + 1, nouG);
                 oberts.add(nouNode);
-                parents.put(nou, actual);
-                accions.put(nou, mov);
+
                 rc.updateMemoria(oberts.size() + (usarLNT ? tancats.size() : 0));
             }
         }
 
-        // Si no hi ha solució
+        // Si no es troba solució
         rc.setCami(null);
     }
 }
