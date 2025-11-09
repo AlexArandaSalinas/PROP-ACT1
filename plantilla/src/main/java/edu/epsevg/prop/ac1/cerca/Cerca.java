@@ -43,15 +43,7 @@ public abstract class Cerca {
         }
         return prof;
     }
-
-    protected boolean existeixEnBranca(Mapa nou, Mapa actual, Map<Mapa, Mapa> parents) {
-        Mapa p = actual;
-        while (parents.containsKey(p)) {
-            if (p.equals(nou)) return true;
-            p = parents.get(p);
-        }
-        return false;
-    }
+    
      /**
      * Control de cicles per la branca actual (quan no es fa servir LNT).
      */
