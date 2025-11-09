@@ -11,34 +11,38 @@ public class CercaDFS extends Cerca {
 
     @Override
     public void ferCerca(Mapa inicial, ResultatCerca rc) {
-        // Stack per DFS
-        Deque<Map.Entry<Mapa, Integer>> stack = new ArrayDeque<>();
-        Map<Mapa, Mapa> parents = new HashMap<>();
-        Map<Mapa, Moviment> accions = new HashMap<>();
-        Set<Mapa> visitats = usarLNT ? new HashSet<>() : null;
 
-        stack.push(new AbstractMap.SimpleEntry<>(inicial, 0));
-        if (usarLNT) visitats.add(inicial);
+        // Pila de nodes per DFS
+        Deque<Node> lno = new ArrayDeque<>();
+        Set<Mapa> lnt = usarLNT ? new HashSet<>() : null;
 
-        while (!stack.isEmpty()) {
-            Map.Entry<Mapa, Integer> entry = stack.pop();
-            Mapa actual = entry.getKey();
-            int profunditat = entry.getValue();
+        // Crear el node inicial
+        Node inicialNode = new Node(inicial, null, null, 0, 0);
+        lno.push(inicialNode);
+        if (usarLNT){
+            lnt.add(inicial);
+        }
+
+        while (!lno.isEmpty()) {
+            Node actualNode = lno.pop();
+            Mapa actual = actualNode.estat;
+            int profunditat = actualNode.depth;
+
             rc.incNodesExplorats();
 
+            // Si és meta reconstruir camí
             if (actual.esMeta()) {
-                // Reconstruir camí
                 List<Moviment> cami = new ArrayList<>();
-                Mapa est = actual;
-                while (parents.containsKey(est)) {
-                    cami.add(0, accions.get(est));
-                    est = parents.get(est);
+                Node n = actualNode;
+                while (n.pare != null) {
+                    cami.add(0, n.accio);
+                    n = n.pare;
                 }
                 rc.setCami(cami);
                 return;
             }
 
-            // Limitar profunditat
+            // Limitar profunditat si no es LNT
             if (!usarLNT && profunditat >= MAX_PROFUNDITAT) {
                 rc.incNodesTallats();
                 continue;
@@ -49,28 +53,27 @@ public class CercaDFS extends Cerca {
                 Mapa nou = succ.getKey();
                 Moviment mov = succ.getValue();
 
-                // Control de ciclos si no usamos LNT
-                if (!usarLNT && existeixEnBranca(nou, actual, parents)) {
+                // Control de cicles sense LNT
+                if (!usarLNT && existeixEnBranca(nou, actualNode)) {
                     rc.incNodesTallats();
                     continue;
                 }
 
-                // Control de ciclos con LNT
-                if (usarLNT && visitats.contains(nou)) {
+                // Control de cicles amb LNT
+                if (usarLNT && lnt.contains(nou)) {
                     rc.incNodesTallats();
                     continue;
                 }
 
-                stack.push(new AbstractMap.SimpleEntry<>(nou, profunditat + 1));
-                if (usarLNT) visitats.add(nou);
-                parents.put(nou, actual);
-                accions.put(nou, mov);
-                rc.updateMemoria(stack.size() + (usarLNT ? visitats.size() : 0));
+                Node nouNode = new Node(nou, actualNode, mov, profunditat + 1, actualNode.g + 1);
+                lno.push(nouNode);
+                if (usarLNT) lnt.add(nou);
             }
 
+            rc.updateMemoria(lno.size() + (usarLNT ? lnt.size() : 0));
         }
 
-        // Si no trobem meta
+        // No trobem meta
         rc.setCami(null);
     }
 }

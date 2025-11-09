@@ -77,16 +77,4 @@ public class CercaBFS extends Cerca {
         // Si no hi ha solució
         rc.setCami(null);
     }
-
-    /**
-     * Control de cicles per la branca actual (quan no es fa servir LNT).
-     */
-    private boolean existeixEnBranca(Mapa estat, Node node) {
-        Node actual = node;
-        while (actual != null) {
-            if (actual.estat.equals(estat)) return true;
-            actual = actual.pare;
-        }
-        return false;
-    }
 }
