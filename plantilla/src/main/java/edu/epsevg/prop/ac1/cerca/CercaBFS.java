@@ -16,8 +16,8 @@ public class CercaBFS extends Cerca {
         //LNO - Frontier
         Queue<Node> lno = new ArrayDeque<>();
         //LNT
-        Map<Mapa, Integer> lnt = usarLNT ? new HashMap<>() : null; 
-        
+        Map<Mapa, Integer> lnt = usarLNT ? new HashMap<>() : null;
+
         // Nodo inicial
         Node inicialNode = new Node(inicial, null, null, 0, 0);
         lno.add(inicialNode);
@@ -29,39 +29,27 @@ public class CercaBFS extends Cerca {
 
         // Bucle principal
         while (!lno.isEmpty()) {
-            
-            //Extraer sig Node
+
             Node actual = lno.poll();
             rc.incNodesExplorats();
 
             // Si és meta, reconstruir camí
             if (actual.estat.esMeta()) {
-                List<Moviment> cami = new ArrayList<>();
-                Node n = actual;
-                while (n.pare != null) {
-                    cami.add(0, n.accio);
-                    n = n.pare;
-                }
-                rc.setCami(cami);
+                rc.setCami(reconstruirCami(actual));
                 return;
             }
 
-            // Expansió de successors
-            for (Map.Entry<Mapa, Moviment> succ : successors(actual.estat)) {
-                Mapa nouEstat = succ.getKey();
-                Moviment mov = succ.getValue();
-
-                boolean descartar = false;
+            // Expansión de sucesores válidos
+            for (Moviment mov : actual.estat.getAccionsPossibles()) {
+                Mapa nouEstat = actual.estat.mou(mov);
 
                 if (usarLNT) {
-                    // Evitem estats ja visitats amb menor profunditat
                     if (lnt.containsKey(nouEstat)) {
                         rc.incNodesTallats();
                         continue;
                     }
                     lnt.put(nouEstat, actual.depth + 1);
                 } else {
-                    // Control de cicles a la branca actual
                     if (existeixEnBranca(nouEstat, actual)) {
                         rc.incNodesTallats();
                         continue;

@@ -13,27 +13,6 @@ public abstract class Cerca {
 
     public abstract void ferCerca(Mapa inicial, ResultatCerca rc);
 
-    /* 
-    * Mètode per generar successors
-    */
-    protected List<Map.Entry<Mapa, Moviment>> successors(Mapa actual) {
-        List<Map.Entry<Mapa, Moviment>> res = new ArrayList<>();
-
-        for (int aid = 1; aid <= actual.getAgents().size(); aid++) {
-            for (Direccio d : Direccio.values()) {
-                try {
-                    Moviment mov = new Moviment(aid, d, false);
-                    Mapa nou = actual.mou(mov);
-                    res.add(new AbstractMap.SimpleEntry<>(nou, mov));
-                } catch (IllegalArgumentException e) {
-                    // moviment invàlid
-                }
-            }
-        }
-
-        return res;
-    }
-    
     /*
     * Fa un get amb la profunditat de l'estat actual
     */

@@ -54,29 +54,23 @@ public class CercaAStar extends Cerca {
             // Marcar com tancat
             if (usarLNT) tancats.add(actual.estat);
 
-            // Generar successors
-            for (Map.Entry<Mapa, Moviment> succ : successors(actual.estat)) {
-                Mapa nouEstat = succ.getKey();
-                Moviment accio = succ.getValue();
-                int nouG = actual.g + 1; // cost uniforme
+            for (Moviment mov : actual.estat.getAccionsPossibles()) {
+                Mapa nouEstat = actual.estat.mou(mov);
+                int nouG = actual.g + 1;
 
-                // Si ja està tancat → tallar
                 if (usarLNT && tancats.contains(nouEstat)) {
                     rc.incNodesTallats();
                     continue;
                 }
 
-                // Si ja tenim un cost millor → ignorar
                 if (gScore.containsKey(nouEstat) && gScore.get(nouEstat) <= nouG) {
                     rc.incNodesTallats();
                     continue;
                 }
 
                 gScore.put(nouEstat, nouG);
-                Node nouNode = new Node(nouEstat, actual, accio, actual.depth + 1, nouG);
+                Node nouNode = new Node(nouEstat, actual, mov, actual.depth + 1, nouG);
                 oberts.add(nouNode);
-
-                rc.updateMemoria(oberts.size() + (usarLNT ? tancats.size() : 0));
             }
         }
 

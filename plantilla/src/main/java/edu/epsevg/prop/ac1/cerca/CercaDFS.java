@@ -48,27 +48,27 @@ public class CercaDFS extends Cerca {
                 continue;
             }
 
-            // Generar successors
-            for (Map.Entry<Mapa, Moviment> succ : successors(actual)) {
-                Mapa nou = succ.getKey();
-                Moviment mov = succ.getValue();
+            for (int aid = 1; aid <= actual.getAgents().size(); aid++) {
+                for (Moviment mov : actual.getAccionsPossibles()) {
+                    if (mov.getAgentId() != aid) continue;
 
-                // Control de cicles sense LNT
-                if (!usarLNT && existeixEnBranca(nou, actualNode)) {
-                    rc.incNodesTallats();
-                    continue;
-                }
+                    Mapa nou = actual.mou(mov);
 
-                // Control de cicles amb LNT
-                if (usarLNT && lnt.contains(nou)) {
-                    rc.incNodesTallats();
-                    continue;
-                }
+                    // Control de cicles
+                    if (!usarLNT && existeixEnBranca(nou, actualNode)) {
+                        rc.incNodesTallats();
+                        continue;
+                    }
+                    if (usarLNT && lnt.contains(nou)) {
+                        rc.incNodesTallats();
+                        continue;
+                    }
 
-                Node nouNode = new Node(nou, actualNode, mov, profunditat + 1, actualNode.g + 1);
-                lno.push(nouNode);
-                if (usarLNT){
-                    lnt.add(nou);
+                    Node nouNode = new Node(nou, actualNode, mov, profunditat + 1, actualNode.g + 1);
+                    lno.push(nouNode);
+                    if (usarLNT){
+                        lnt.add(nou);
+                    }
                 }
             }
 
