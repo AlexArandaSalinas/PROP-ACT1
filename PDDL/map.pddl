@@ -12,7 +12,7 @@
 	  (at agent1 cell11)
 	  (key-at a cell13)
 	  (door-between doorA cell15 cell16 a)
-	  (not (open doorA))   ;; 🔒 puerta cerrada inicialmente
+	  (not (open doorA))
 
 	  (adjacent cell11 cell12)
 	  (adjacent cell12 cell13)

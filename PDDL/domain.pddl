@@ -1,5 +1,6 @@
 (define (domain maze-domain)
   (:requirements :strips :typing :equality :existential-preconditions)
+
   (:types agent cell key door)
 
   (:predicates
@@ -12,17 +13,20 @@
     (exit ?c - cell)
   )
 
-  ;; Moverse entre celdas adyacentes sin puerta cerrada
+  ;; Accions
+
+  ;; Moures
   (:action move
     :parameters (?a - agent ?from - cell ?to - cell)
     :precondition (and
       (at ?a ?from)
       (adjacent ?from ?to)
       (not (exists (?b - agent) (at ?b ?to)))
-      ;; No debe haber una puerta cerrada entre las celdas
+
       (not (exists (?d - door ?k - key)
         (and (door-between ?d ?from ?to ?k)
-             (not (open ?d)))
+             (not (open ?d))
+        )
       ))
     )
     :effect (and
@@ -31,7 +35,7 @@
     )
   )
 
-  ;; Recoger una llave
+  ;; Recollir la clau
   (:action pick-key
     :parameters (?a - agent ?c - cell ?k - key)
     :precondition (and
@@ -44,7 +48,7 @@
     )
   )
 
-  ;; Abrir una puerta con su llave
+  ;; Obrir la porta
   (:action open-door
     :parameters (?a - agent ?from - cell ?to - cell ?d - door ?k - key)
     :precondition (and
@@ -57,7 +61,7 @@
     :effect (open ?d)
   )
 
-  ;; Moverse a través de una puerta abierta
+  ;; Moures a traves de la porta
   (:action move-through-door
     :parameters (?a - agent ?from - cell ?to - cell ?d - door ?k - key)
     :precondition (and
