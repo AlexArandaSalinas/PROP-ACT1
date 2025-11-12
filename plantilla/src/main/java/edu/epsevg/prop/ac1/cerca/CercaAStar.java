@@ -72,7 +72,10 @@ public class CercaAStar extends Cerca {
                 Node nouNode = new Node(nouEstat, actual, mov, actual.depth + 1, nouG);
                 oberts.add(nouNode);
             }
-        }
+            
+            rc.updateMemoria(oberts.size() + (usarLNT ? tancats.size() : 0));
+
+        }      
 
         // Si no es troba solució
         rc.setCami(null);
