@@ -272,45 +272,48 @@ public class Mapa {
 
     @Override
     public boolean equals(Object o) {
+        if(o == null){
+            return false;
+        }
+        
         if (this == o){
             return true;
         }
-        
+ 
         if (!(o instanceof Mapa)){
             return false;
         }
         
-        Mapa other = (Mapa) o;
+        Mapa mapaAcomparar = (Mapa) o;
 
-        // comprovem dimensions i sortida (seguretat)
-        if (this.n != other.n || this.m != other.m){ 
+        if (this.n != mapaAcomparar.n || this.m != mapaAcomparar.m){ 
             return false;
         }
         
         if (this.sortida == null) {
-            if (other.sortida != null) {
+            if (mapaAcomparar.sortida != null) {
                 return false;
             }
         } else {
-            if (!this.sortida.equals(other.sortida)){
+            if (!this.sortida.equals(mapaAcomparar.sortida)){
                 return false;
             }
         }
 
         // comprovem màscara de claus
-        if (this.clausMask != other.clausMask){
+        if (this.clausMask != mapaAcomparar.clausMask){
             return false;
         }
 
         // comprovem nombre d'agents
-        if (this.agents.size() != other.agents.size()){
+        if (this.agents.size() != mapaAcomparar.agents.size()){
             return false;
         }
 
-        // comprovem posició de cada agent (ordre important: agent 1 amb agent 1, etc.)
+        // comprovem posició de cada agent
         for (int i = 0; i < agents.size(); i++) {
             Posicio p1 = this.agents.get(i);
-            Posicio p2 = other.agents.get(i);
+            Posicio p2 = mapaAcomparar.agents.get(i);
             if (!p1.equals(p2)){
                 return false;
             }
@@ -321,7 +324,6 @@ public class Mapa {
 
     @Override
     public int hashCode() {
-        // Incloem dimensions, sortida, agents i clausMask
         return Objects.hash(n, m, sortida, agents, clausMask);
     }
     

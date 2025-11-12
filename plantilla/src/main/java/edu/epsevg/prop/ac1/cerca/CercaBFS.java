@@ -15,6 +15,7 @@ public class CercaBFS extends Cerca {
 
         //LNO - Frontier
         Queue<Node> lno = new ArrayDeque<>();
+        //LNT
         Map<Mapa, Integer> lnt = usarLNT ? new HashMap<>() : null; 
         
         // Nodo inicial

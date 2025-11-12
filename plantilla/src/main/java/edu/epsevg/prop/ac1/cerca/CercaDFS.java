@@ -67,7 +67,9 @@ public class CercaDFS extends Cerca {
 
                 Node nouNode = new Node(nou, actualNode, mov, profunditat + 1, actualNode.g + 1);
                 lno.push(nouNode);
-                if (usarLNT) lnt.add(nou);
+                if (usarLNT){
+                    lnt.add(nou);
+                }
             }
 
             rc.updateMemoria(lno.size() + (usarLNT ? lnt.size() : 0));

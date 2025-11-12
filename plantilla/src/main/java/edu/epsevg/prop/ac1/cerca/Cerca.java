@@ -13,9 +13,9 @@ public abstract class Cerca {
 
     public abstract void ferCerca(Mapa inicial, ResultatCerca rc);
 
-    // ==============================
-    // Mètode per generar successors
-    // ==============================
+    /* 
+    * Mètode per generar successors
+    */
     protected List<Map.Entry<Mapa, Moviment>> successors(Mapa actual) {
         List<Map.Entry<Mapa, Moviment>> res = new ArrayList<>();
 
@@ -26,7 +26,7 @@ public abstract class Cerca {
                     Mapa nou = actual.mou(mov);
                     res.add(new AbstractMap.SimpleEntry<>(nou, mov));
                 } catch (IllegalArgumentException e) {
-                    // moviment invàlid → mur, porta tancada, col·lisió
+                    // moviment invàlid
                 }
             }
         }
@@ -34,6 +34,9 @@ public abstract class Cerca {
         return res;
     }
     
+    /*
+    * Fa un get amb la profunditat de l'estat actual
+    */
     protected int getProfunditat(Mapa est, Map<Mapa, Mapa> parents) {
         int prof = 0;
         Mapa p = parents.get(est);
@@ -44,7 +47,7 @@ public abstract class Cerca {
         return prof;
     }
     
-     /**
+     /*
      * Control de cicles per la branca actual (quan no es fa servir LNT).
      */
     protected boolean existeixEnBranca(Mapa estat, Node node) {

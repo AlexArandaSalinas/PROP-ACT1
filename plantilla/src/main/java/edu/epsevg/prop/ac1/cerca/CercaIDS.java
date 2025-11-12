@@ -85,7 +85,9 @@ public class CercaIDS extends Cerca {
 
                 Node nouNode = new Node(nou, actualNode, mov, actualNode.depth + 1, actualNode.g + 1);
                 pila.push(nouNode);
-                if (usarLNT && visitats != null) visitats.add(nou);
+                if (usarLNT && visitats != null){
+                    visitats.add(nou);
+                }
                 rc.updateMemoria(pila.size() + (usarLNT && visitats != null ? visitats.size() : 0));
             }
         }
