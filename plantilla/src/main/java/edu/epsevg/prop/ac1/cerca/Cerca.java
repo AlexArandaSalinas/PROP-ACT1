@@ -53,8 +53,38 @@ public abstract class Cerca {
     protected boolean existeixEnBranca(Mapa estat, Node node) {
         Node actual = node;
         while (actual != null) {
-            if (actual.estat.equals(estat)) return true;
+            if (actual.estat.equals(estat)){
+                return true;
+            }
             actual = actual.pare;
+        }
+        return false;
+    }
+    
+    /**
+     * Reconstrueix el camí del node final fins a l’inicial.
+     */
+    protected List<Moviment> reconstruirCami(Node nodeFinal) {
+        LinkedList<Moviment> cami = new LinkedList<>();
+        Node actual = nodeFinal;
+        while (actual.pare != null) {
+            cami.addFirst(actual.accio);
+            actual = actual.pare;
+        }
+        return cami;
+    }
+
+    /**
+     * Comprova si hi ha un cicle al camí (sense LNT).
+     */
+    protected boolean comprobarCicle(Node node) {
+        Mapa estatActual = node.estat;
+        Node pare = node.pare;
+        while (pare != null) {
+            if (pare.estat.equals(estatActual)) {
+                return true;
+            }
+            pare = pare.pare;
         }
         return false;
     }

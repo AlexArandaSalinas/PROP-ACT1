@@ -348,6 +348,25 @@ public class Mapa {
     // Aquí van les vostres ampliacions (nous mètodes d'utilitat)
     //===================================================================
     
-    //@TODO: (opcionalment) el que cregueu convenient per ampliar la classe.
+    //@TODO: (opcionalment) el que cregueu convenient per ampliar la classe    
+    public List<Posicio> getClausPendents() {
+        List<Posicio> clausPendents = new ArrayList<>();
+
+        //recorrem tot
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                int valor = grid[i][j];
+                if (Character.isLowerCase(valor)) {
+                    char key = (char) valor;
+                    if (!teClau(key)) {
+                        clausPendents.add(new Posicio(i, j));
+                    }
+                }
+            }
+        }
+        return clausPendents;
+    }
+
+    
 
 }

@@ -11,4 +11,5 @@ public interface Heuristica {
      * @param estat és el mapa que volem avaluar
      */
     int h(Mapa estat);
+    
 }
