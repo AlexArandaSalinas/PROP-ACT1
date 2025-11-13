@@ -22,21 +22,21 @@ public class CercaAStar extends Cerca {
         
         // Comparator per ordenar per f(n) = g + h
         Comparator<Node> comparator = Comparator.comparingDouble(n -> n.g + heur.h(n.estat));
-        PriorityQueue<Node> oberts = new PriorityQueue<>(comparator);
+        PriorityQueue<Node> lno = new PriorityQueue<>(comparator);
 
         // Taules auxiliars
-        Map<Mapa, Integer> gScore = new HashMap<>();
-        Set<Mapa> tancats = usarLNT ? new HashSet<>() : null;
+        Map<Mapa, Integer> gCost = new HashMap<>();
+        Set<Mapa> lnt = usarLNT ? new HashSet<>() : null;
 
         // Node inicial
         Node inicialNode = new Node(inicial, null, null, 0, 0);
-        oberts.add(inicialNode);
-        gScore.put(inicial, 0);
+        lno.add(inicialNode);
+        gCost.put(inicial, 0);
 
         rc.updateMemoria(1);
 
-        while (!oberts.isEmpty()) {
-            Node actual = oberts.poll();
+        while (!lno.isEmpty()) {
+            Node actual = lno.poll();
             rc.incNodesExplorats();
 
             // Si és la meta -> reconstruir camí
@@ -52,28 +52,28 @@ public class CercaAStar extends Cerca {
             }
 
             // Marcar com tancat
-            if (usarLNT) tancats.add(actual.estat);
+            if (usarLNT) lnt.add(actual.estat);
 
             for (Moviment mov : actual.estat.getAccionsPossibles()) {
                 Mapa nouEstat = actual.estat.mou(mov);
                 int nouG = actual.g + 1;
 
-                if (usarLNT && tancats.contains(nouEstat)) {
+                if (usarLNT && lnt.contains(nouEstat)) {
                     rc.incNodesTallats();
                     continue;
                 }
 
-                if (gScore.containsKey(nouEstat) && gScore.get(nouEstat) <= nouG) {
+                if (gCost.containsKey(nouEstat) && gCost.get(nouEstat) <= nouG) {
                     rc.incNodesTallats();
                     continue;
                 }
 
-                gScore.put(nouEstat, nouG);
+                gCost.put(nouEstat, nouG);
                 Node nouNode = new Node(nouEstat, actual, mov, actual.depth + 1, nouG);
-                oberts.add(nouNode);
+                lno.add(nouNode);
             }
             
-            rc.updateMemoria(oberts.size() + (usarLNT ? tancats.size() : 0));
+            rc.updateMemoria(lno.size() + (usarLNT ? lnt.size() : 0));
 
         }      
 
