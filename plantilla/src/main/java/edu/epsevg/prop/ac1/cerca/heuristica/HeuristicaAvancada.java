@@ -7,6 +7,10 @@ import java.util.*;
 
 /**
  * Heuristica avançada: Al vostre gust ;-)
+ * La idea es:
+ * - Desde el agente hasta la próxima llave más cercana (si hay llaves pendientes)
+ * - Estimación del coste para recoger el resto de llaves
+ * - Distancia desde la última llave hasta la salida
  */
 public class HeuristicaAvancada implements Heuristica {
     

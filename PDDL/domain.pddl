@@ -1,28 +1,25 @@
-(define (domain maze-domain)
+(define (domain map-domain)
   (:requirements :strips :typing :equality :existential-preconditions)
 
   (:types agent cell key door)
 
   (:predicates
-    (at ?a - agent ?c - cell)
-    (adjacent ?from - cell ?to - cell)
+    (at ?ag - agent ?c - cell)
+    (adjacent ?c1 - cell ?c2 - cell)
     (key-at ?k - key ?c - cell)
-    (has-key ?a - agent ?k - key)
+    (has-key ?ag - agent ?k - key)
     (door-between ?d - door ?c1 - cell ?c2 - cell ?k - key)
     (open ?d - door)
     (exit ?c - cell)
+    (occupied ?c - cell)
   )
 
-  ;; Accions
-
-  ;; Moures
   (:action move
-    :parameters (?a - agent ?from - cell ?to - cell)
+    :parameters (?ag - agent ?from - cell ?to - cell)
     :precondition (and
-      (at ?a ?from)
+      (at ?ag ?from)
       (adjacent ?from ?to)
-      (not (exists (?b - agent) (at ?b ?to)))
-
+      (not (occupied ?to))
       (not (exists (?d - door ?k - key)
         (and (door-between ?d ?from ?to ?k)
              (not (open ?d))
@@ -30,51 +27,73 @@
       ))
     )
     :effect (and
-      (not (at ?a ?from))
-      (at ?a ?to)
+      (not (at ?ag ?from))
+      (at ?ag ?to)
+      (not (occupied ?from))
+      (occupied ?to)
     )
   )
 
-  ;; Recollir la clau
-  (:action pick-key
-    :parameters (?a - agent ?c - cell ?k - key)
+  (:action move-pick-key
+    :parameters (?ag - agent ?from - cell ?to - cell ?k - key)
     :precondition (and
-      (at ?a ?c)
-      (key-at ?k ?c)
+      (at ?ag ?from)
+      (adjacent ?from ?to)
+      (key-at ?k ?to)
+      (not (occupied ?to))
     )
     :effect (and
-      (has-key ?a ?k)
-      (not (key-at ?k ?c))
+      (not (at ?ag ?from))
+      (at ?ag ?to)
+      (not (occupied ?from))
+      (occupied ?to)
+      (has-key ?ag ?k)
+      (not (key-at ?k ?to))
     )
   )
 
-  ;; Obrir la porta
   (:action open-door
-    :parameters (?a - agent ?from - cell ?to - cell ?d - door ?k - key)
+    :parameters (?ag - agent ?from - cell ?to - cell ?d - door ?k - key)
     :precondition (and
-      (at ?a ?from)
+      (at ?ag ?from)
       (adjacent ?from ?to)
       (door-between ?d ?from ?to ?k)
-      (has-key ?a ?k)
+      (has-key ?ag ?k)
       (not (open ?d))
     )
     :effect (open ?d)
   )
 
-  ;; Moures a traves de la porta
-  (:action move-through-door
-    :parameters (?a - agent ?from - cell ?to - cell ?d - door ?k - key)
+  (:action move-through-open-door
+    :parameters (?ag - agent ?from - cell ?to - cell ?d - door ?k - key)
     :precondition (and
-      (at ?a ?from)
+      (at ?ag ?from)
       (adjacent ?from ?to)
       (door-between ?d ?from ?to ?k)
       (open ?d)
-      (not (exists (?b - agent) (at ?b ?to)))
+      (not (occupied ?to))
     )
     :effect (and
-      (not (at ?a ?from))
-      (at ?a ?to)
+      (not (at ?ag ?from))
+      (at ?ag ?to)
+      (not (occupied ?from))
+      (occupied ?to)
+    )
+  )
+
+  (:action move-to-exit
+    :parameters (?ag - agent ?from - cell ?to - cell)
+    :precondition (and
+      (at ?ag ?from)
+      (adjacent ?from ?to)
+      (exit ?to)
+      (not (occupied ?to))
+    )
+    :effect (and
+      (not (at ?ag ?from))
+      (at ?ag ?to)
+      (not (occupied ?from))
+      (occupied ?to)
     )
   )
 )
-
